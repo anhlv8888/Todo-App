@@ -1,4 +1,8 @@
-<form action="{{route('todolists.store')}}">
+<div class="alert alert-success" id="add-new-alert" style="display: none">
+
+</div>
+
+ <form action="{{route('todolists.store')}}">
     {{csrf_field()}}
     <div class="form-group">
         <label for="" class="control-lable">List Name</label>

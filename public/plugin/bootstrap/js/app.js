@@ -10,6 +10,20 @@ $('.show-todolist-modal').click(function(event){
     });
     $('#todolist-modal').modal('show');
 });
+function  showMessage(message) {
+    $("#add-new-alert").text(message).fadeTo(1000,500).slideUp(500,function(){
+        $(this).hide();
+    });
+}
+function updateTodoListCounter() {
+    var total =  $('.list-group-item').length;
+    $('#todo-list-counter').text(total).next().text(total > 1 ? 'records' : 'record');
+}
+// do not use Enter in input
+$('#todolist-modal').on('keypress',":input:not(textarea)",function(event){
+   return event.keyCode != 13;
+});
+
 $('#todo-list-save-btn').click(function (event) {
     event.preventDefault();
 
@@ -25,6 +39,10 @@ $('#todo-list-save-btn').click(function (event) {
         data: form.serialize(),
         success: function (response) {
             $('#todo-list').prepend(response);
+            showMessage("Todo list had been created");
+            form.trigger('reset');
+            $('#title').focus();
+            updateTodoListCounter();
         },
         error:function (xhr) {
             var errors = xhr.responseJSON;

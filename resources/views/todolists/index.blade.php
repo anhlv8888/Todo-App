@@ -33,7 +33,7 @@
                         @endforeach
                     </ul>
                     <div class="panel-footer">
-                        <small>{{$todolist->count()}} list items</small>
+                        <small><span id="todo-list-counter">{{$todolist->count()}}</span> list items</small>
                     </div>
                 </div>
 
