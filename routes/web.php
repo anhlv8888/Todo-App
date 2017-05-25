@@ -18,3 +18,5 @@ Route::get('/', function () {
 
 Auth::routes();
 Route::resource('todolists','TodoListsController');
+Route::resource('todolists.tasks','TasksController',
+    ['only' =>['store','update','destroy']]);

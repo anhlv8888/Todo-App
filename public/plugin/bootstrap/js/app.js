@@ -1,3 +1,4 @@
+// Show form addnew Or Update todo list
 $('body').on('click','.show-todolist-modal',function(event){
     event.preventDefault();
     var me = $(this)
@@ -38,7 +39,7 @@ function showNoRecordMessage(total) {
 $('#todolist-modal').on('keypress',":input:not(textarea)",function(event){
    return event.keyCode != 13;
 });
-
+// Update and Create todo list
 $('#todo-list-save-btn').click(function (event) {
     event.preventDefault();
 
@@ -86,6 +87,7 @@ $('#todo-list-save-btn').click(function (event) {
         }
     });
 });
+// Show form Delete todo list
 $('body').on('click','.show-confirm-modal',function(event){
     event.preventDefault();
 
@@ -95,6 +97,7 @@ $('body').on('click','.show-confirm-modal',function(event){
      $('#confirm-body p').html("Are you sure you want to delete todo list : <strong>"+ title +"</strong>")
     $('#confirm-modal').modal('show');
 });
+// Delete Todo List
 $('#confirm-remove-btn').click(function (event) {
    event.preventDefault();
    var form = $('#confirm-body form'),
@@ -116,11 +119,89 @@ $('#confirm-remove-btn').click(function (event) {
        }
    });
 });
-$('.show-task-modal').click(function(event){
+// Show and add task of Todo List
+$('body').on('click','.show-task-modal',function(event){
     event.preventDefault();
+
+    var anchor = $(this),
+        url = anchor.attr('href'),
+        title = anchor.data('title'),
+        action = anchor.data('action'),
+        parent =anchor.closest('.list-group-item');
+
+    $('#task-modal-subtitle').text(title);
+    $('#task-form').attr('action',action);
+    $('#selected-todo-list').val(parent.attr('id'));
+
+    $.ajax({
+        url:url,
+        datatype:'html',
+        success:function (response) {
+            $('#task-table-body').html(response);
+            initIcheck();
+            countActiveTasks();
+        }
+    });
     $('#task-modal').modal('show');
 });
-$(function(){
+function countAllTasksOfSelectedList() {
+    var total = $('#task-table-body tr').length,
+        selectedTodoListId = $('#selected-todo-list').val();
+
+    $('#'+selectedTodoListId).find('span.badge').text(total +" "+ (total >1 ? 'tasks' : 'task'));
+}
+
+// Add new Task
+$('#task-form').submit(function (e) {
+    e.preventDefault();
+    var form = $(this),
+        action = form.attr('action');
+
+        $.ajax({
+            url:action,
+            type:'POST',
+            data: form.serialize(),
+            success:function (response) {
+                $('#task-table-body').prepend(response);
+                form.trigger('reset');
+                countActiveTasks();
+                initIcheck();
+                countAllTasksOfSelectedList();
+            }
+        });
+
+});
+function countActiveTasks() {
+    var total = $('tr.task-item:not(:has(td.done))').length;
+    $('#active-tasks-counter').text(total +" "+(total > 1 ? 'tasks' : 'task') + " left");
+    
+}
+function markTheTask(checkbox) {
+    var url = checkbox.data('url'),
+        completed = checkbox.is(":checked");
+
+    $.ajax({
+        url : url,
+        type : 'PUT',
+        data:{
+            completed:completed,
+            _token:$("input[name=_token]").val()
+        },
+        success:function (response) {
+            if(response){
+                var  nextid =checkbox.closest('td').next();
+                if(completed){
+                    nextid.addClass('done');
+                }else {
+                    nextid.removeClass('done');
+                }
+
+                countActiveTasks();
+            }
+        }
+    });
+}
+function initIcheck(){
     $('input[type=checkbox]').iCheck({
         checkboxClass:'icheckbox_square-green',
         increaseArea:'20%'
@@ -130,5 +211,54 @@ $(function(){
     });
     $('#check_all').on('ifUnchecked',function(e){
         $('.check-item').iCheck('uncheck');
+    });
+    $('.check-item')
+        .on('ifChecked',function (e) {
+           var checkbox= $(this);
+            markTheTask(checkbox);
+        })
+        .on('ifUnchecked',function (e) {
+            var checkbox= $(this);
+            markTheTask(checkbox);
+        });
+};
+// Change completed Or Not in manage Task
+$(".filter-btn").click(function (e) {
+   e.preventDefault();
+   var id = this.id;
+   $(this).addClass('active')
+       .parent()
+       .children()
+       .not(e.target)
+       .removeClass('active');
+   if (id == 'all-tasks'){
+        $('tr.task-item').show();
+   }else if(id == 'active-tasks'){
+       $('tr.task-item:has(td.done)').hide();
+       $('tr.task-item:not(:has(td.done))').show();
+   }else if(id == "completed-tasks"){
+       $('tr.task-item:has(td.done)').show();
+       $('tr.task-item:not(:has(td.done))').hide();
+   }
+});
+// Remove task
+$('#task-table-body').on('click','.remove-task-btn',function (e) {
+    e.preventDefault();
+    var url = $(this).attr('href');
+
+    $.ajax({
+        url:url,
+        type:'DELETE',
+        data:{
+            _token: $('input[name=_token]').val()
+        },
+        success:function (response) {
+            $('#task-'+ response.id).fadeOut(function () {
+                $(this).remove();
+                countActiveTasks();
+                countAllTasksOfSelectedList();
+            });
+        }
+
     });
 });
