@@ -15,17 +15,20 @@ $('body').on('click','.show-todolist-modal',function(event){
     });
     $('#todolist-modal').modal('show');
 });
+// Show message addnew todolist
 function  showMessage(message, element) {
     var alert = element == undefined ? "#add-new-alert" : element;
     $(alert).text(message).fadeTo(1000,500).slideUp(500,function(){
         $(this).hide();
     });
 }
+// Count update todolist
 function updateTodoListCounter() {
     var total =  $('.list-group-item').length;
     $('#todo-list-counter').text(total).next().text(total > 1 ? 'records' : 'record');
     showNoRecordMessage(total);
 }
+// Show message update and No record
 function showNoRecordMessage(total) {
     if(total>1){
         $('#todo-list').closest('.panel').removeClass('hidden');
@@ -176,6 +179,7 @@ function countActiveTasks() {
     $('#active-tasks-counter').text(total +" "+(total > 1 ? 'tasks' : 'task') + " left");
     
 }
+// Update mark of Task 
 function markTheTask(checkbox) {
     var url = checkbox.data('url'),
         completed = checkbox.is(":checked");
