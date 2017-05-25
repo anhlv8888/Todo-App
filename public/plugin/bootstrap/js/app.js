@@ -1,6 +1,10 @@
-$('.show-todolist-modal').click(function(event){
+$('body').on('click','.show-todolist-modal',function(event){
     event.preventDefault();
-    var url = $(this).attr('href');
+    var me = $(this)
+        url = me.attr('href'),
+        title = me.attr('title');
+     $('#todo-list-title').text(title);
+     $('#todo-list-save-btn').text(me.hasClass('edit') ? 'Update' : 'Create New');
     $.ajax({
         url: url,
         dataType: 'html',
@@ -10,14 +14,25 @@ $('.show-todolist-modal').click(function(event){
     });
     $('#todolist-modal').modal('show');
 });
-function  showMessage(message) {
-    $("#add-new-alert").text(message).fadeTo(1000,500).slideUp(500,function(){
+function  showMessage(message, element) {
+    var alert = element == undefined ? "#add-new-alert" : element;
+    $(alert).text(message).fadeTo(1000,500).slideUp(500,function(){
         $(this).hide();
     });
 }
 function updateTodoListCounter() {
     var total =  $('.list-group-item').length;
     $('#todo-list-counter').text(total).next().text(total > 1 ? 'records' : 'record');
+    showNoRecordMessage(total);
+}
+function showNoRecordMessage(total) {
+    if(total>1){
+        $('#todo-list').closest('.panel').removeClass('hidden');
+        $('#no-record-alert').addClass('hidden');
+    }else {
+        $('#todo-list').closest('.panel').addClass('hidden');
+        $('#no-record-alert').removeClass('hidden');
+    }
 }
 // do not use Enter in input
 $('#todolist-modal').on('keypress',":input:not(textarea)",function(event){
@@ -29,7 +44,7 @@ $('#todo-list-save-btn').click(function (event) {
 
     var form =$('#todo-list-body form'),
         url = form.attr('action'),
-        method = "POST";
+        method = form.attr('method');
     // reset error message
     form.find('.help-block').remove();
     form.find('.form-group').removeClass('has-error');
@@ -38,11 +53,23 @@ $('#todo-list-save-btn').click(function (event) {
         method: method,
         data: form.serialize(),
         success: function (response) {
-            $('#todo-list').prepend(response);
-            showMessage("Todo list had been created");
-            form.trigger('reset');
-            $('#title').focus();
-            updateTodoListCounter();
+            if( method == "POST"){
+                $('#todo-list').prepend(response);
+                showMessage("Todo list had been created");
+                form.trigger('reset');
+                $('#title').focus();
+                updateTodoListCounter();
+            }
+           else {
+                var id = $('input[name=id]').val();
+                if (id){
+                    $('#todo-list-'+id).replaceWith(response);
+                }
+                $('#todolist-modal').modal('hide');
+                showMessage("Todo list has been updated","#update-alert");
+                updateTodoListCounter();
+           }
+
         },
         error:function (xhr) {
             var errors = xhr.responseJSON;
@@ -58,6 +85,36 @@ $('#todo-list-save-btn').click(function (event) {
 
         }
     });
+});
+$('body').on('click','.show-confirm-modal',function(event){
+    event.preventDefault();
+
+     var title = $(this).attr('data-title'),
+        action = $(this).attr('href');
+     $('#confirm-body form').attr('action',action);
+     $('#confirm-body p').html("Are you sure you want to delete todo list : <strong>"+ title +"</strong>")
+    $('#confirm-modal').modal('show');
+});
+$('#confirm-remove-btn').click(function (event) {
+   event.preventDefault();
+   var form = $('#confirm-body form'),
+       url = form.attr('action');
+   $.ajax({
+       url: url,
+       method:'DELETE',
+       data:form.serialize(),
+       success:function (data) {
+           $('#confirm-modal').modal('hide');
+           // var id = $('input[name=id]').val();
+           $('#todo-list-'+ data.id).fadeOut(function () {
+              $(this).remove();
+               updateTodoListCounter();
+               showMessage("Todo list has been deleted","#update-alert");
+           });
+
+
+       }
+   });
 });
 $('.show-task-modal').click(function(event){
     event.preventDefault();

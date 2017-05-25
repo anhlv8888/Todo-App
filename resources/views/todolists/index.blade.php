@@ -10,11 +10,12 @@
                         <h1 class="header-title">Todo List</h1>
                     </div>
                     <div class="pull-right">
-                        <a href="{{route('todolists.create')}}" class="btn btn-success show-todolist-modal">Create New List</a>
+                        <a href="{{route('todolists.create')}}" class="btn btn-success show-todolist-modal" title="Create New List">Create New List</a>
                     </div>
                 </div>
                 @include('todolists.todolistmodal')
                 @include('todolists.taskmodal')
+                @include('todolists.confirmmodal')
             </div>
         </div>
     </header>
@@ -26,6 +27,7 @@
                 <div class="alert alert-warning {{ $todolist->count() ? 'hidden' : '' }} " id="no-record-alert">
                     No record found
                 </div>
+                <div class="alert alert-success" id="update-alert" style="display: none;"></div>
                 <div class="panel panel-default  {{ !$todolist->count() ? 'hidden' : '' }}">
                     <ul class="list-group" id="todo-list">
                         @foreach($todolist as $todolist)

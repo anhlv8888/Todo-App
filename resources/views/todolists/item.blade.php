@@ -1,16 +1,16 @@
-<li class="list-group-item">
-    <h4 class="list-group-item-heading">{{$todolist->title}} <span class="badge">0 tasks</span></h4>
+<?php $count = $todolist->tasks->count() ?>
+<li class="list-group-item" id="todo-list-{{$todolist->id}}">
+    <h4 class="list-group-item-heading">{{$todolist->title}} <span class="badge">{{$count}} {{ $count >1 ? 'tasks' : 'task' }}</span></h4>
     <p class="list-group-item-text">{{$todolist->description}}</p>
     <div class="buttons">
-        <a href="" title="Manage Tasks" class="btn btn-info btn-xs show-task-modal">
+        <a href="{{route("todolists.show",$todolist->id)}}" title="Manage Tasks" class="btn btn-info btn-xs show-task-modal">
             <i class="glyphicon glyphicon-ok"></i>
         </a>
-        <a href="" title="update" class="btn btn-default btn-xs show-todolist-modal">
+        <a href="{{route('todolists.edit',$todolist->id)}}" title="Edit {{$todolist->title}}" class="btn btn-default btn-xs show-todolist-modal edit">
             <i class="glyphicon glyphicon-edit"></i>
         </a>
-        <a href="" title="delete" class="btn btn-danger btn-xs">
+        <a href="{{route('todolists.destroy',$todolist->id)}}" title="delete" class="btn btn-danger btn-xs show-confirm-modal" data-title="{{$todolist->title}}">
             <i class="glyphicon glyphicon-remove"></i>
-
         </a>
     </div>
 </li>

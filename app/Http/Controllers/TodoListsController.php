@@ -14,11 +14,15 @@ class TodoListsController extends Controller
      */
     public function index(Request $request)
     {
+//        \DB::enableQueryLog();
         $todolist = $request->user()
                             ->todolist()
+                            ->with('tasks')
                             ->orderBy('updated_at','desc')
                             ->get();
-        return view('todolists.index',compact('todolist'));
+//        dd($todolist);
+         return view('todolists.index',compact('todolist'));
+//         dd(\DB::getQueryLog());
     }
 
     /**
@@ -57,7 +61,9 @@ class TodoListsController extends Controller
      */
     public function show($id)
     {
-        //
+        $todolist = TodoList::findOrFail($id);
+        $tasks = $todolist->tasks()->latest()->get();
+        return view("tasks.index",compact('tasks'));
     }
 
     /**
@@ -68,7 +74,9 @@ class TodoListsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $todolist = TodoList::findOrFail($id);
+//        dd($todolist);
+        return view('todolists.form',compact('todolist'));
     }
 
     /**
@@ -80,7 +88,13 @@ class TodoListsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request,[
+            'title'=>'required|min:5',
+            'description'=>'min:5'
+        ]);
+        $todolist = TodoList::findOrFail($id);
+        $todolist->update($request->all());
+        return view("todolists.item",compact('todolist'));
     }
 
     /**
@@ -91,6 +105,8 @@ class TodoListsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $todolist = TodoList::findOrFail($id);
+        $todolist->delete();
+        return $todolist;
     }
 }
