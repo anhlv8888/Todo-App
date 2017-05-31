@@ -179,7 +179,7 @@ function countActiveTasks() {
     $('#active-tasks-counter').text(total +" "+(total > 1 ? 'tasks' : 'task') + " left");
     
 }
-// Update mark of Task 
+// Update mark of Task
 function markTheTask(checkbox) {
     var url = checkbox.data('url'),
         completed = checkbox.is(":checked");
@@ -266,3 +266,23 @@ $('#task-table-body').on('click','.remove-task-btn',function (e) {
 
     });
 });
+// add input field when click button
+
+$(document).ready(function() {
+    var add_button      = $(".add_field_button"); //Add button ID with .add_field_button is button
+
+    var x = 1; //initlal text box count
+    $(add_button).click(function(e){ //on add input button click
+        e.preventDefault();
+        var y = ++x;
+        $('tbody').append("<tr><td>"+ y +"</td><td><input type='text' placeholder='Họ và Tên' name='name"+ y +"' /></td><td><select name='' id=''><option value='0'>Nam</option><option value='1'>Nữ</option></select></td><td class='remove_field'><a href='#'><i class='fa fa-2x fa-times'></i></a></td></tr>");
+    });
+
+    $('tbody').on("click",".remove_field", function(e){ //user click on remove text
+        e.preventDefault();
+        $(this).parent('tr').remove(); x--;
+    })
+});
+
+
+
